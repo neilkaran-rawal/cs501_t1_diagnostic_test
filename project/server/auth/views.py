@@ -7,20 +7,22 @@ from project.server import bcrypt, db
 from project.server.models import User
 
 auth_blueprint = Blueprint('auth', __name__)
+index_blueprint = Blueprint('index', __name__)
 
 class RegisterAPI(MethodView):
     """
     User Registration Resource
     """
-
+    
     def get(self):
-    	responseObject = {
-    		'status': 'success',
-    		'message': 'Request successful but please send an HTTP POST request to register the user.'
-    	}
-    	return make_response(jsonify(responseObject)), 201
-
+            responseObject = {
+                'status': 'success',
+                'message': 'Request successful but please send an HTTP POST request to register the user.'
+                }
+            return make_response(jsonify(responseObject)), 201 
+    
     def post(self):
+        
         # get the post data
         post_data = request.get_json(); print(request)
         # check if user already exists
@@ -56,13 +58,29 @@ class RegisterAPI(MethodView):
             }
             return make_response(jsonify(responseObject)), 202
 
+class Index(MethodView):
+
+    def get(self):
+        users = [user.serialize for user in User.query.all()]
+        return make_response(jsonify(users)), 202
+        
+ 
 
 # define the API resources
 registration_view = RegisterAPI.as_view('register_api')
-
+index_view = Index.as_view('index_api')
 # add Rules for API Endpoints
 auth_blueprint.add_url_rule(
     '/auth/register',
     view_func=registration_view,
     methods=['POST', 'GET']
 )
+
+index_blueprint.add_url_rule(
+    '/users/index',
+    view_func=index_view,
+    methods=['GET']
+)
+
+
+
